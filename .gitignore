@@ -1,0 +1,19 @@
+#Environment variables
+.env
+.env.*
+!.env.example
+#Generated release note documents
+UTSA_Digital_Tools_Release_Notes_*.docx
+RAW/*.docx
+#Local runtime files
+*.log
+__pycache__/
+*.py[cod]
+.DS_Store
+#Total Tools List
+helper_files/Total Tools.txt
+#Temporary state history
+temp_config.json
+#Recipients List
+helper_files/recipients.csv
+

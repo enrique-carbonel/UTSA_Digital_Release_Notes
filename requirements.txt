@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+python-docx
+google-genai
+colorama
+selenium
+feedparser
+python-dotenv
+webdriver-manager
