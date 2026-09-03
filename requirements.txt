@@ -7,3 +7,5 @@ selenium
 feedparser
 python-dotenv
 webdriver-manager
+fastapi
+uvicorn[standard]

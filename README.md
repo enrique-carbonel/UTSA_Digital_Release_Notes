@@ -66,6 +66,7 @@ Create a file named `.env` in the main project folder. Do not commit this file b
 GEMINI_API_KEY=your_gemini_api_key
 EMAIL_SENDER=your_email@gmail.com
 EMAIL_APP_PASSWORD=your_gmail_app_password
+SCRAPER_API_KEY=choose_a_long_random_api_key
 ```
 
 One scraper also supports a login-protected tool:
@@ -87,13 +88,23 @@ python main.py
 
 Messages printed in the terminal show which pages were read, which updates were found, and whether the email was sent.
 
+## API Service
+
+The scraper can also be exposed to Agents through the FastAPI service. Start it from the project folder after installing the requirements:
+
+```bash
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
+Use `GET /health` for an unauthenticated health check. Use `POST /scrape` with the configured API key in the `X-API-KEY` header. The endpoint returns the current valid release notes as JSON on every request. It does not read or write the document-generation state, so an agent can retrieve the latest updates even when they were already included in a Word document.
+
 ## Output and Saved State
 
 | Location | Purpose |
 | --- | --- |
 | `RAW/` | Generated Word documents containing the release notes |
 | `config.json` | Main history of the last run and processed URLs |
-| `temp_config.json` | Temporary copy of processed URL history |
+| `temp_config.json` | Temporary URL history used by the Word-document workflow |
 | `helper_files/gemini_prompt.txt` | Instructions used to create the AI summary |
 | `helper_files/recipients.csv` | Email recipients |
 
@@ -123,7 +134,7 @@ Some pages change their layout or require Chrome. The system logs the failed scr
 
 ### An update is skipped
 
-The system uses the source URL as its duplicate check. To process a URL again, remove it from `config.json` and `temp_config.json` before running the program.
+The Word-document workflow uses the source URL in `config.json` and `temp_config.json` to avoid documenting the same release twice. The agent-facing `/scrape` endpoint does not apply this check and always returns the current valid scrape results.
 
 ## AI Agent Notes
 
