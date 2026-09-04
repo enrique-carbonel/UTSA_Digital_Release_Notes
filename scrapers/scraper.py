@@ -44,13 +44,13 @@ def extract_content(soup, css_selectors):
             for junk in element(["nav", "footer", "script", "style", "header", "aside"]):
                 junk.decompose()
             # separator="\n" prevents words from mashing together
-            return element.get_text(separator="\n").strip()[:1500]
+            return element.get_text(separator="\n").strip()
     
     # FOOLPROOF FALLBACK
     if soup.body:
         for junk in soup(["script", "style", "nav", "footer", "header", "aside"]):
             junk.decompose()
-        return soup.body.get_text(separator="\n").strip()[:1500]
+        return soup.body.get_text(separator="\n").strip()
         
     return "Content not found."
 
@@ -65,7 +65,7 @@ def scrape_adobe():
         time.sleep(4) # Let Adobe's heavy page load
         content = driver.find_element(By.TAG_NAME, "body").text
         driver.quit()
-        return {"tool": "Adobe Creative Cloud", "title": "Latest Creative Cloud Updates", "content": content[:1500], "url": url}
+        return {"tool": "Adobe Creative Cloud", "title": "Latest Creative Cloud Updates", "content": content, "url": url}
     except Exception as e:
         log_error(f"Adobe CC scrape failed: {e}")
         return None
@@ -223,7 +223,7 @@ def scrape_canvas():
         return {
             "tool": "Canvas",
             "title": "Canvas Release & Deploy Notes",
-            "content": combined_content[:7500], 
+            "content": combined_content,
             "url": index_url
         }
 
@@ -250,7 +250,7 @@ def scrape_equidox():
                 content = content[content.find("Equidox"):] # Start reading from the word "Equidox"
                 
         driver.quit()
-        return {"tool": "Equidox", "title": "Equidox Updates", "content": content[:1500], "url": url}
+        return {"tool": "Equidox", "title": "Equidox Updates", "content": content, "url": url}
     except Exception as e:
         log_error(f"Equidox scrape failed: {e}")
     return None
@@ -283,7 +283,7 @@ def scrape_gradescope():
             content = match.group(1).strip()
             return {"tool": "Gradescope", "title": "Latest Gradescope Update", "content": content, "url": url}
             
-        return {"tool": "Gradescope", "title": "Latest Gradescope Updates", "content": text[:1000], "url": url}
+        return {"tool": "Gradescope", "title": "Latest Gradescope Updates", "content": text, "url": url}
     except Exception as e:
         log_error(f"Gradescope scrape failed: {e}")
     return None
@@ -301,7 +301,7 @@ def scrape_padlet():
             content = latest_card.text
             status = "Beta" if "beta" in content.lower() else "Released"
             driver.quit()
-            return {"tool": "Padlet", "title": "Latest Padlet Changelog Entry", "content": content[:1500], "url": url, "status": status}
+            return {"tool": "Padlet", "title": "Latest Padlet Changelog Entry", "content": content, "url": url, "status": status}
         driver.quit()
     except Exception as e:
         log_error(f"Padlet scrape failed: {e}")
@@ -357,7 +357,7 @@ def scrape_readspeaker():
         if feed.entries:
             latest = feed.entries[0]
             clean_text = BeautifulSoup(latest.description, "html.parser").get_text(separator="\n").strip()
-            return {"tool": "ReadSpeaker", "title": latest.title, "content": clean_text[:1500], "url": latest.link}
+            return {"tool": "ReadSpeaker", "title": latest.title, "content": clean_text, "url": latest.link}
     except Exception as e:
         log_error(f"ReadSpeaker scrape failed: {e}")
     return None
@@ -482,7 +482,7 @@ def scrape_simplesyllabus():
                 final_text = "\n".join(content)
                 
                 if final_text:
-                    return {"tool": "Simple Syllabus", "title": article_title, "content": final_text[:1500], "url": article_url}
+                    return {"tool": "Simple Syllabus", "title": article_title, "content": final_text, "url": article_url}
                 else:
                     return {"tool": "Simple Syllabus", "title": article_title, "content": "Found the logo, but no text followed it.", "url": article_url}
             else:

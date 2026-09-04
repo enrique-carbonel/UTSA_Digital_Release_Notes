@@ -60,7 +60,7 @@ def generate_summary(release_notes_data):
             note_text = _get_note_text(item)
             tool_name = item.get('tool', 'Unknown tool')
             title = item.get('title', 'Untitled update')
-            prompt += f"Tool: {tool_name}\nTitle: {title}\nUpdate: {note_text[:500]}...\n\n"
+            prompt += f"Tool: {tool_name}\nTitle: {title}\nUpdate: {note_text}\n\n"
 
         response = client.models.generate_content(
             model="gemini-2.5-flash",

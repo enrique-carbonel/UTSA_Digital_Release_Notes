@@ -17,3 +17,5 @@ temp_config.json
 #Recipients List
 helper_files/recipients.csv
 
+#make_template.py functions
+make_template.py
