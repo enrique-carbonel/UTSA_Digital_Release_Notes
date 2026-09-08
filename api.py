@@ -5,6 +5,8 @@ from fastapi.responses import FileResponse
 import docx
 import io
 import os
+import base64
+from pydantic import BaseModel
 
 from scrapers.scraper import scrape_all
 from utils.logger import log_error
@@ -33,24 +35,25 @@ def verify_api_key(api_key: str | None = Security(api_key_header)) -> str:
 def read_root():
     return {"status": "online", "service": "UTSA Scraper API"}
 
+class FormatRequest(BaseModel):
+    file_base64: str
+    user_group: str
+
 @app.post("/format-release-notes")
-async def format_release_notes(
-    file: UploadFile = File(...),
-    user_group: str = Form(...)
-):
+async def format_release_notes(request: FormatRequest):
     try:
-        # 1. Leer el contenido del archivo .docx directamente en memoria
-        file_bytes = await file.read()
+        # Decodificar el archivo Base64 a bytes
+        file_bytes = base64.b64decode(request.file_base64)
         doc = docx.Document(io.BytesIO(file_bytes))
         
         raw_text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
         
-        # 2. Enviar el texto extraído a Gemini adaptado al rol
-        formatted_text = generate_role_summary(raw_text, user_group)
+        # Generar el resumen adaptado al rol
+        formatted_text = generate_role_summary(raw_text, request.user_group)
         
         return {
             "status": "success",
-            "user_group": user_group,
+            "user_group": request.user_group,
             "formatted_content": formatted_text
         }
     except Exception as e:
