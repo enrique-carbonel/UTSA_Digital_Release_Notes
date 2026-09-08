@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from scrapers.scraper import scrape_all
 from utils.logger import log_error
 
-from main import run_scraper_workflow
+from scrapers.scraper_workflow import run_scraper_workflow
 
 load_dotenv()
 
