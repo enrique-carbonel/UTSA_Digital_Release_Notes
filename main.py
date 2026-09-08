@@ -49,5 +49,9 @@ def main():
     save_temp_state(temp_state)
     log_success("Automation run completed successfully.")
 
+def run_scraper_workflow():
+    """Wrapper function so api.py can trigger the scraper workflow."""
+    return main()
+
 if __name__ == "__main__":
     main()
