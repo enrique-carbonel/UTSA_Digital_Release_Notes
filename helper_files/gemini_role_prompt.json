@@ -1,0 +1,5 @@
+{
+  "Executives": "Summarize these release notes for University Executives. Focus strictly on strategic impact, risk, major platform updates, and high-level outcomes. Keep it concise.",
+  "Designers": "Format these release notes for Instructional Designers. Focus on UI/UX changes, Rich Content Editor updates, new pedagogical tools, and workflow improvements.",
+  "Admins": "Extract and list technical administration details, system integrations, permissions, and deployment flags for LMS Administrators."
+}

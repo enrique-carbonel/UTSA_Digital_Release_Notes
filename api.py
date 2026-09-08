@@ -1,12 +1,14 @@
-import os
-
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Security, status, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Security, status, BackgroundTasks, UploadFile, File, Form
 from fastapi.security import APIKeyHeader
 from fastapi.responses import FileResponse
+import docx
+import io
+import os
 
 from scrapers.scraper import scrape_all
 from utils.logger import log_error
+from utils.gemini_helper import generate_role_summary
 
 from scrapers.scraper_workflow import run_scraper_workflow
 
@@ -30,6 +32,29 @@ def verify_api_key(api_key: str | None = Security(api_key_header)) -> str:
 @app.get("/")
 def read_root():
     return {"status": "online", "service": "UTSA Scraper API"}
+
+@app.post("/format-release-notes")
+async def format_release_notes(
+    file: UploadFile = File(...),
+    user_group: str = Form(...)
+):
+    try:
+        # 1. Leer el contenido del archivo .docx directamente en memoria
+        file_bytes = await file.read()
+        doc = docx.Document(io.BytesIO(file_bytes))
+        
+        raw_text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+        
+        # 2. Enviar el texto extraído a Gemini adaptado al rol
+        formatted_text = generate_role_summary(raw_text, user_group)
+        
+        return {
+            "status": "success",
+            "user_group": user_group,
+            "formatted_content": formatted_text
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
 
 @app.get("/health")
 def health() -> dict[str, str]:

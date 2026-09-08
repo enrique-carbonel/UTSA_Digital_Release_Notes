@@ -2,8 +2,10 @@ import os
 from pathlib import Path
 from google import genai
 from utils.logger import log_info, log_error
+import json
 
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "helper_files" / "gemini_prompt.txt"
+ROLE_FILE = Path(__file__).resolve().parent.parent / "helper_files" / "gemini_role_prompt.json"
 
 
 def _extract_text_from_response(response):
@@ -72,3 +74,21 @@ def generate_summary(release_notes_data):
     except Exception as e:
         log_error(f"Failed to generate summary: {e}")
         return "Summary could not be generated."
+
+def generate_role_summary(raw_text: str, user_group: str) -> str:
+    """Apply a specific prompt to Gemini uploaded from a JSON file according to the audience."""
+    
+    try:
+        # Cargar el archivo JSON como diccionario
+        prompts_dict = json.loads(ROLE_FILE.read_text(encoding="utf-8"))
+        
+        # Obtener el prompt del rol recibido (usando "Admins" como fallback seguro)
+        selected_prompt = prompts_dict.get(user_group, prompts_dict.get("Admins", ""))
+    except Exception as e:
+        log_error(f"Error loading role_prompts.json: {e}")
+        selected_prompt = "Extract and format the most relevant release notes."
+
+    full_prompt = f"{selected_prompt}\n\n=== RAW RELEASE NOTES ===\n{raw_text}"
+    
+    # Enviar la instrucción completa a Gemini
+    return generate_summary(full_prompt)
