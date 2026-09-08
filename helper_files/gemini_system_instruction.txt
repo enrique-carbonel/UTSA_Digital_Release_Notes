@@ -1,0 +1,11 @@
+FORMATTING AND STRUCTURE INSTRUCTIONS:
+Process the attached text without omitting any mentioned tools. 
+
+Return your answer ONLY in valid JSON format with the following exact keys:
+{
+  "executive_summary": "An executive summary aligned to the specified profile.",
+  "detailed_tool_updates": "The complete breakdown formatted by each tool analyzed."
+}
+
+=== LAUNCH NOTES (RAW DATA) ===
+{raw_text}
