@@ -37,20 +37,16 @@ def health() -> dict[str, str]:
 
 @app.post("/run-scraper")
 def trigger_scraper():
-    try:
-        # Call your scraping logic from main.py
-        output_filepath = run_scraper_workflow() 
-
-        if os.path.exists(output_filepath):
-            return FileResponse(
-                path=output_filepath, 
-                filename="RAW_Template.docx",
-                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
-        else:
-            raise HTTPException(status_code=500, detail="File generation failed.")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    doc_path = run_scraper_workflow()
+    
+    if not doc_path or not os.path.exists(doc_path):
+        raise HTTPException(status_code=500, detail="Document generation failed or returned invalid path.")
+        
+    return FileResponse(
+        path=doc_path, 
+        filename=os.path.basename(doc_path),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
 @app.post("/scrape")
 def trigger_scrape(_: str = Security(verify_api_key)) -> dict:
