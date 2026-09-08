@@ -7,6 +7,11 @@ import json
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "helper_files" / "gemini_prompt.txt"
 ROLE_FILE = Path(__file__).resolve().parent.parent / "helper_files" / "gemini_role_prompt.json"
 
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+
+model = genai.GenerativeModel("gemini-1.5-flash")
+
 
 def _extract_text_from_response(response):
     if response is None:
@@ -47,42 +52,37 @@ def _get_note_text(note):
     ).strip()
 
 
-def generate_summary(release_notes_data):
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        log_error("Gemini API key not found. Skipping AI summary.")
-        return "AI Summary unavailable (No API Key)."
-
+def generate_summary(prompt: str) -> str:
+    """Llama a la API de Gemini y retorna el texto limpio."""
     try:
         log_info("Generating AI summary with Gemini...")
-        client = genai.Client(api_key=api_key)
+        
+        # Instancia/Llamada al modelo Gemini
+        response = model.generate_content(prompt)
+        
+        # IMPORTANTE: response.text es un string. 
+        # Asegúrate de retornar directamente response.text y no hacerle un .get()
+        if hasattr(response, 'text'):
+            return response.text
+        
+        return str(response)
 
-        prompt = PROMPT_FILE.read_text(encoding="utf-8").rstrip() + "\n\n"
-        for item in release_notes_data:
-            note_text = _get_note_text(item)
-            tool_name = item.get('tool', 'Unknown tool')
-            title = item.get('title', 'Untitled update')
-            prompt += f"Tool: {tool_name}\nTitle: {title}\nUpdate: {note_text}\n\n"
-
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-        )
-
-        text = _extract_text_from_response(response)
-        return text or "Summary could not be generated."
     except Exception as e:
         log_error(f"Failed to generate summary: {e}")
         return "Summary could not be generated."
 
 def generate_role_summary(raw_text: str, user_group: str) -> str:
-    """Apply a specific prompt to Gemini uploaded from a JSON file according to the audience."""
-    
+    """Carga los prompts por rol y llama a la API de Gemini."""
     try:
-        # Cargar el archivo JSON como diccionario
-        prompts_dict = json.loads(ROLE_FILE.read_text(encoding="utf-8"))
+        # Cargar y parsear explícitamente a diccionario
+        with open(ROLE_FILE, "r", encoding="utf-8") as f:
+            prompts_dict = json.load(f)
         
-        # Obtener el prompt del rol recibido (usando "Admins" como fallback seguro)
+        # Si por alguna razón sigue siendo string, forzar segundo json.loads
+        if isinstance(prompts_dict, str):
+            prompts_dict = json.loads(prompts_dict)
+
+        # Buscar el prompt según el user_group
         selected_prompt = prompts_dict.get(user_group, prompts_dict.get("Admins", ""))
     except Exception as e:
         log_error(f"Error loading role_prompts.json: {e}")
@@ -90,5 +90,5 @@ def generate_role_summary(raw_text: str, user_group: str) -> str:
 
     full_prompt = f"{selected_prompt}\n\n=== RAW RELEASE NOTES ===\n{raw_text}"
     
-    # Enviar la instrucción completa a Gemini
+    # Invocar a Gemini
     return generate_summary(full_prompt)
