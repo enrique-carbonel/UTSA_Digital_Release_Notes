@@ -1,11 +1,14 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Security, status
+from fastapi import FastAPI, HTTPException, Security, status, BackgroundTasks
 from fastapi.security import APIKeyHeader
+from fastapi.responses import FileResponse
 
 from scrapers.scraper import scrape_all
 from utils.logger import log_error
+
+from main import run_scraper_workflow
 
 load_dotenv()
 
@@ -24,11 +27,30 @@ def verify_api_key(api_key: str | None = Security(api_key_header)) -> str:
         )
     return api_key
 
+@app.get("/")
+def read_root():
+    return {"status": "online", "service": "UTSA Scraper API"}
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "healthy"}
 
+@app.post("/run-scraper")
+def trigger_scraper():
+    try:
+        # Call your scraping logic from main.py
+        output_filepath = run_scraper_workflow() 
+
+        if os.path.exists(output_filepath):
+            return FileResponse(
+                path=output_filepath, 
+                filename="RAW_Template.docx",
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+        else:
+            raise HTTPException(status_code=500, detail="File generation failed.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/scrape")
 def trigger_scrape(_: str = Security(verify_api_key)) -> dict:
