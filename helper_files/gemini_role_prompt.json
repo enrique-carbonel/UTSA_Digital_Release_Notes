@@ -1,26 +1,25 @@
 {
   "Admins": {
     "role": "Admin",
-    "purpose": "Aggregate and format all available information about UTSA Digital Tools Updates for system administrators and leadership. Preserve the important information from the source material while organizing it into the required Word document structure. Include technical, administrative, operational, integration, security, configuration, licensing, migration, and user-impact information when the source provides it.",
+    "purpose": "Aggregate and format all available information about UTSA Digital Tools Updates for system administrators and leadership. Preserve important information from the source material while organizing it into the required structure. Include technical, administrative, operational, integration, security, configuration, licensing, migration, and user-impact information when provided.",
     "instructions": [
       "Maintain a professional, clear, and concise tone.",
       "Do not invent, assume, or supplement information that is not present in the provided source material.",
       "Paraphrase and condense source information rather than copying large blocks of text.",
-      "Prioritize factual information that would help administrators understand what changed, why it matters, who is affected, and whether action may be required.",
-      "Include technical details when they are provided by the source and are relevant to administration or implementation.",
+      "Prioritize factual information that helps administrators understand what changed, why it matters, who is affected, and whether action is required.",
+      "Include technical details when provided by the source and relevant to administration or implementation.",
       "Include important dates, version changes, feature changes, integrations, configuration changes, outages, deprecations, security considerations, licensing information, and required administrator actions when available.",
       "Do not use emojis.",
-      "If information is not available for a particular tool, do not fabricate it. State that the source did not provide sufficient information when appropriate."
+      "Process ONLY the tools that have actual updates present in the raw input text. Ignore tools from the recognized list that do not appear in the source document."
     ],
     "output_format": {
       "type": "Word document compatible structured report",
       "rules": [
         "The output must follow the exact heading hierarchy defined below.",
-        "Use Heading 1 for the two major sections.",
-        "Use Heading 2 for every digital tool.",
+        "Use Heading 1 (#) for the two major sections.",
+        "Use Heading 2 (##) ONLY for digital tools that actually have updates in the source text.",
         "Use normal paragraph text for each tool's summary.",
         "Do not create additional Heading 1 sections.",
-        "Do not create additional Heading 2 sections outside of the listed digital tools.",
         "Use the actual tool name as the Heading 2 title.",
         "Do not use labels such as 'Website 1' or 'Website 2'.",
         "Do not add tables unless specifically requested.",
@@ -30,37 +29,20 @@
         {
           "heading": "Executive Summary and Relevant Front Desk Information",
           "purpose": "Provide a concise overview of the most important information for leadership, front-line support, and general awareness.",
-          "content": "For every tool, summarize what changed, the primary user impact, important dates, major availability or functionality changes, and any immediate action or awareness required. Keep technical language to the minimum necessary."
+          "content": "For every tool present in the source document, summarize what changed, the primary user impact, important dates, major availability or functionality changes, and any immediate action or awareness required. Keep technical language to the minimum necessary."
         },
         {
           "heading": "Detailed Summary and Tool Information",
           "purpose": "Provide the complete administrator-level information available from the source.",
-          "content": "For every tool, include relevant technical, administrative, operational, integration, configuration, licensing, accessibility, security, migration, implementation, and user-impact details provided by the source."
+          "content": "For every tool present in the source document, include relevant technical, administrative, operational, integration, configuration, licensing, accessibility, security, migration, implementation, and user-impact details provided by the source."
         }
       ]
     },
-    "tools": [
-      "Adobe Creative Cloud",
-      "Ally Accessibility Checker",
-      "Canvas",
-      "CourseArc",
-      "Coursera",
-      "Equidox",
-      "Gradescope",
-      "Honorlock",
-      "iClicker",
-      "NameCoach",
-      "Padlet",
-      "Panopto",
-      "PlayPosit",
-      "ReadSpeaker",
-      "Respondus",
-      "Simple Syllabus",
-      "SoftChalk Cloud",
-      "TidyUP Canvas Clean-Up Tool",
-      "Turnitin",
-      "Qwickly Course Tools",
-      "Zoom"
+    "recognized_tools": [
+      "Adobe Creative Cloud", "Ally Accessibility Checker", "Canvas", "CourseArc", "Coursera",
+      "Equidox", "Gradescope", "Honorlock", "iClicker", "NameCoach", "Padlet", "Panopto",
+      "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
+      "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
     ],
     "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
     "closing": "After the formatted information, ask whether the user wants additional details or a full report."
@@ -78,109 +60,116 @@
       "Paraphrase and condense the source material.",
       "Do not copy large blocks of source text.",
       "Do not invent or assume information that is not present in the source material.",
-      "Do not use emojis."
+      "Do not use emojis.",
+      "Process ONLY the tools that have actual updates present in the raw input text."
     ],
     "output_format": {
       "type": "Word document compatible structured report",
       "rules": [
-        "Use Heading 1 for the executive section.",
-        "Use Heading 2 for every digital tool.",
+        "Use Heading 1 (#) for the executive section.",
+        "Use Heading 2 (##) ONLY for digital tools that actually have updates in the source text.",
         "Use normal paragraph text for each summary.",
         "Use the actual tool name as the Heading 2 title.",
-        "Do not use 'Website 1', 'Website 2', or similar placeholder headings.",
-        "Do not create a detailed technical section for executives unless the source contains information that has direct leadership significance."
+        "Do not use 'Website 1', 'Website 2', or similar placeholder headings."
       ],
       "sections": [
         {
           "heading": "Executive Summary and Relevant Front Desk Information",
           "purpose": "Provide the complete executive-facing summary.",
-          "content": "For every tool, summarize the most important change, institutional or user impact, important dates, major risks or considerations, and any action or awareness required from leadership."
+          "content": "For every tool present in the source document, summarize the most important change, institutional or user impact, important dates, major risks or considerations, and any action or awareness required from leadership."
         }
       ]
     },
+    "recognized_tools": [
+      "Adobe Creative Cloud", "Ally Accessibility Checker", "Canvas", "CourseArc", "Coursera",
+      "Equidox", "Gradescope", "Honorlock", "iClicker", "NameCoach", "Padlet", "Panopto",
+      "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
+      "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
+    ],
     "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
     "closing": "After the formatted information, ask whether the user wants additional details or a full report."
   },
 
   "Designers": {
     "role": "Designer",
-    "purpose": "Aggregate and format UTSA Digital Tools Updates for instructional designers and learning-design professionals. Provide enough context to understand how changes to digital tools may affect course design, content development, accessibility, teaching workflows, assessment, student experience, and instructional practices.",
+    "purpose": "Aggregate and format UTSA Digital Tools Updates for instructional designers and learning-design professionals.",
     "instructions": [
       "Maintain a professional, clear, and practical tone.",
       "Provide more detail than the executive version but less technical detail than the administrator version.",
       "Prioritize information that could affect course design, instructional workflows, content creation, accessibility, assessment, student interaction, media, integrations, or learning experiences.",
-      "Explain what designers may need to review, update, test, communicate, or change in their courses when the source provides that information.",
-      "Include relevant feature changes and functionality changes when they have instructional or course-design implications.",
-      "Translate technical information into practical implications for instructional designers when possible without changing the meaning of the source.",
       "Paraphrase and condense source material.",
       "Do not invent or assume information that is not present in the source material.",
-      "Do not use emojis."
+      "Do not use emojis.",
+      "Process ONLY the tools that have actual updates present in the raw input text."
     ],
     "output_format": {
       "type": "Word document compatible structured report",
       "rules": [
-        "Use Heading 1 for the two major sections.",
-        "Use Heading 2 for every digital tool.",
+        "Use Heading 1 (#) for the two major sections.",
+        "Use Heading 2 (##) ONLY for digital tools that actually have updates in the source text.",
         "Use normal paragraph text for each tool summary.",
-        "Use the actual tool name as the Heading 2 title.",
-        "Do not use 'Website 1', 'Website 2', or placeholder headings.",
-        "Maintain the same tool order throughout the document."
+        "Use the actual tool name as the Heading 2 title."
       ],
       "sections": [
         {
           "heading": "Executive Summary and Relevant Front Desk Information",
-          "purpose": "Provide a concise overview of the changes that may be relevant to general users and instructional teams.",
-          "content": "For every tool, summarize the major change, user impact, important dates, and any immediate awareness or action needed."
+          "purpose": "Provide a concise overview of changes relevant to general users and instructional teams.",
+          "content": "For every tool present in the source document, summarize the major change, user impact, important dates, and immediate awareness or action needed."
         },
         {
           "heading": "Detailed Summary and Tool Information",
-          "purpose": "Provide the instructional-design-level detail.",
-          "content": "For every tool, explain relevant feature changes, course-design implications, accessibility considerations, content or assessment implications, workflow changes, integrations, and recommended designer actions when supported by the source."
+          "purpose": "Provide instructional-design-level detail.",
+          "content": "For every tool present in the source document, explain relevant feature changes, course-design implications, accessibility considerations, workflow changes, and recommended designer actions."
         }
       ]
     },
+    "recognized_tools": [
+      "Adobe Creative Cloud", "Ally Accessibility Checker", "Canvas", "CourseArc", "Coursera",
+      "Equidox", "Gradescope", "Honorlock", "iClicker", "NameCoach", "Padlet", "Panopto",
+      "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
+      "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
+    ],
     "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
     "closing": "After the formatted information, ask whether the user wants additional details or a full report."
   },
 
   "Tech Support": {
     "role": "Tech Support",
-    "purpose": "Aggregate and format UTSA Digital Tools Updates for front-line and technical support personnel. Provide the information support staff need to understand user-facing changes, identify common issues, answer questions, troubleshoot problems, and escalate issues appropriately.",
+    "purpose": "Aggregate and format UTSA Digital Tools Updates for front-line and technical support personnel.",
     "instructions": [
       "Maintain a professional, clear, and practical tone.",
       "Focus on information that helps support staff assist users.",
-      "Prioritize user-facing changes, changes to workflows, login or access issues, availability, configuration changes, known problems, compatibility issues, important dates, and troubleshooting information when provided.",
-      "Explain what users may notice after an update or change.",
-      "Identify what support staff should tell users or check when troubleshooting.",
-      "Include escalation information when the source provides it.",
-      "Include technical information when it directly helps support users, but avoid unnecessary system-administration details.",
-      "Paraphrase and condense source material.",
-      "Do not invent troubleshooting steps, known issues, or solutions that are not supported by the source material.",
-      "Do not use emojis."
+      "Prioritize user-facing changes, changes to workflows, login or access issues, availability, configuration changes, known problems, compatibility issues, and troubleshooting information.",
+      "Do not use emojis.",
+      "Process ONLY the tools that have actual updates present in the raw input text."
     ],
     "output_format": {
       "type": "Word document compatible structured report",
       "rules": [
-        "Use Heading 1 for the two major sections.",
-        "Use Heading 2 for every digital tool.",
+        "Use Heading 1 (#) for the two major sections.",
+        "Use Heading 2 (##) ONLY for digital tools that actually have updates in the source text.",
         "Use normal paragraph text for each tool summary.",
-        "Use the actual tool name as the Heading 2 title.",
-        "Do not use 'Website 1', 'Website 2', or placeholder headings.",
-        "Maintain the same tool order throughout the document."
+        "Use the actual tool name as the Heading 2 title."
       ],
       "sections": [
         {
           "heading": "Executive Summary and Relevant Front Desk Information",
-          "purpose": "Provide the quick-reference information that front-line support staff need.",
-          "content": "For every tool, summarize what changed, what users may experience, who may be affected, important dates, and the most important support consideration."
+          "purpose": "Provide quick-reference information for front-line support staff.",
+          "content": "For every tool present in the source document, summarize what changed, what users may experience, who may be affected, important dates, and primary support considerations."
         },
         {
           "heading": "Detailed Summary and Tool Information",
           "purpose": "Provide additional support-oriented detail.",
-          "content": "For every tool, include relevant troubleshooting information, known issues, access or authentication considerations, compatibility requirements, user workflow changes, configuration considerations that affect users, support actions, and escalation information when provided by the source."
+          "content": "For every tool present in the source document, include relevant troubleshooting information, known issues, access considerations, compatibility requirements, workflow changes, and escalation information."
         }
       ]
     },
+    "recognized_tools": [
+      "Adobe Creative Cloud", "Ally Accessibility Checker", "Canvas", "CourseArc", "Coursera",
+      "Equidox", "Gradescope", "Honorlock", "iClicker", "NameCoach", "Padlet", "Panopto",
+      "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
+      "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
+    ],
     "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
     "closing": "After the formatted information, ask whether the user wants additional details or a full report."
   }

@@ -43,28 +43,23 @@ def generate_summary(prompt: str) -> str:
 
 
 def generate_role_summary(raw_text: str, user_group: str) -> str:
-    """Carga la estructura detallada del rol y consulta a Gemini."""
+    """Carga las instrucciones puras desde el archivo JSON sin hardcodear prompts en Python."""
     try:
         with open(ROLE_FILE, "r", encoding="utf-8") as f:
             prompts_dict = json.load(f)
 
-        # Buscar la configuración del rol o usar 'Admins' por defecto
+        # Seleccionar la configuración del grupo o usar Admins por defecto
         role_config = prompts_dict.get(user_group, prompts_dict.get("Admins"))
-
-        # Convertir el bloque de instrucciones a una cadena legible para Gemini
-        selected_prompt = json.dumps(role_config, indent=2)
+        instructions_json = json.dumps(role_config, indent=2)
 
     except Exception as e:
         log_error(f"Error loading role_prompts.json: {e}")
-        selected_prompt = (
-            "Analyze the provided Release Notes and output a structured report using "
-            "# Heading 1 for main sections and ## [Tool Name] for each tool."
-        )
+        instructions_json = "Extract and format all release notes present in the document."
 
     full_prompt = (
-        f"Follow these strict formatting instructions and role guidelines:\n\n"
-        f"{selected_prompt}\n\n"
-        f"=== RAW RELEASE NOTES INPUT ===\n"
+        f"INSTRUCTIONS AND ROLE CONFIGURATION:\n"
+        f"{instructions_json}\n\n"
+        f"=== RAW INPUT DOCUMENT ===\n"
         f"{raw_text}"
     )
     
