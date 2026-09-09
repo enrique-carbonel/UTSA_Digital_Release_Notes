@@ -42,57 +42,30 @@ def generate_summary(prompt: str) -> str:
         return "Summary could not be generated."
 
 
-def generate_role_summary(raw_text: str, user_group: str) -> dict:
-    """
-    Carga los prompts desde la carpeta helper_files, consulta a Gemini 2.5 Flash 
-    y retorna un diccionario estructurado listo para la plantilla de Word.
-    """
-    # 1. Cargar el prompt específico del rol desde gemini_role_prompt.json
-    selected_role_prompt = ""
+def generate_role_summary(raw_text: str, user_group: str) -> str:
+    """Carga la estructura detallada del rol y consulta a Gemini."""
     try:
-        if ROLE_FILE.exists():
-            with open(ROLE_FILE, "r", encoding="utf-8") as f:
-                prompts_dict = json.load(f)
-                if isinstance(prompts_dict, str):
-                    prompts_dict = json.loads(prompts_dict)
-                selected_role_prompt = prompts_dict.get(user_group, prompts_dict.get("Admins", ""))
+        with open(ROLE_FILE, "r", encoding="utf-8") as f:
+            prompts_dict = json.load(f)
+
+        # Buscar la configuración del rol o usar 'Admins' por defecto
+        role_config = prompts_dict.get(user_group, prompts_dict.get("Admins"))
+
+        # Convertir el bloque de instrucciones a una cadena legible para Gemini
+        selected_prompt = json.dumps(role_config, indent=2)
+
     except Exception as e:
-        log_error(f"Error loading {ROLE_FILE.name}: {e}")
+        log_error(f"Error loading role_prompts.json: {e}")
+        selected_prompt = (
+            "Analyze the provided Release Notes and output a structured report using "
+            "# Heading 1 for main sections and ## [Tool Name] for each tool."
+        )
 
-    if not selected_role_prompt:
-        selected_role_prompt = f"Process all tool release notes for the target audience: {user_group}."
-
-    # 2. Cargar el template de instrucciones desde gemini_system_instruction.txt
-    system_instruction_template = ""
-    try:
-        if SYSTEM_INSTRUCTION_FILE.exists():
-            with open(SYSTEM_INSTRUCTION_FILE, "r", encoding="utf-8") as f:
-                system_instruction_template = f.read()
-    except Exception as e:
-        log_error(f"Error loading {SYSTEM_INSTRUCTION_FILE.name}: {e}")
-
-    if not system_instruction_template:
-        system_instruction_template = "Return JSON with 'executive_summary' and 'detailed_tool_updates'.\n\n{raw_text}"
-
-    # 3. Armar el prompt final combinando el Rol + Instrucción de formato + Texto Raw
-    formatted_instruction = system_instruction_template.replace("{raw_text}", raw_text)
-    full_prompt = f"{selected_role_prompt}\n\n{formatted_instruction}"
-
-    # 4. Enviar a Gemini y procesar respuesta
-    raw_response = generate_summary(full_prompt)
-
-    # Limpiar formato markdown (```json ... ```) si viene envuelto
-    clean_json_str = raw_response.replace("```json", "").replace("```", "").strip()
-
-    try:
-        formatted_data = json.loads(clean_json_str)
-        return {
-            "executive_summary": formatted_data.get("executive_summary", ""),
-            "detailed_tool_updates": formatted_data.get("detailed_tool_updates", clean_json_str)
-        }
-    except Exception as e:
-        log_error(f"Failed to parse JSON response from Gemini, using raw response fallback: {e}")
-        return {
-            "executive_summary": f"Release Notes Briefing for {user_group}",
-            "detailed_tool_updates": raw_response
-        }
+    full_prompt = (
+        f"Follow these strict formatting instructions and role guidelines:\n\n"
+        f"{selected_prompt}\n\n"
+        f"=== RAW RELEASE NOTES INPUT ===\n"
+        f"{raw_text}"
+    )
+    
+    return generate_summary(full_prompt)

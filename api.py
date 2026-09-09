@@ -42,22 +42,39 @@ class FormatRequest(BaseModel):
 @app.post("/format-release-notes")
 async def format_release_notes(request: FormatRequest):
     try:
-        # Decodificar el archivo Base64 a bytes
         file_bytes = base64.b64decode(request.file_base64)
         doc = docx.Document(io.BytesIO(file_bytes))
         
-        raw_text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+        # Extraer párrafos
+        text_runs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
         
-        # Generar el resumen adaptado al rol
+        # Extraer tablas
+        for table in doc.tables:
+            for row in table.rows:
+                row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                if row_text:
+                    text_runs.append(" | ".join(row_text))
+                        
+        raw_text = "\n\n".join(text_runs)
+
+        if not raw_text.strip():
+            return {
+                "status": "warning",
+                "user_group": request.user_group,
+                "formatted_content": "No readable text found in the uploaded document."
+            }
+        
+        # Generar el resumen en Markdown mediante Gemini
         formatted_text = generate_role_summary(raw_text, request.user_group)
         
         return {
             "status": "success",
             "user_group": request.user_group,
-            "formatted_content": formatted_text
+            "formatted_content": formatted_text  # Devuelve el texto Markdown directo
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
+        log_error(f"Error processing release notes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 def health() -> dict[str, str]:
