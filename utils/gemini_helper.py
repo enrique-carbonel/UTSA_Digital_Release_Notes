@@ -42,25 +42,68 @@ def generate_summary(prompt: str) -> str:
         return "Summary could not be generated."
 
 
+# Alias para tolerar variaciones en el valor que manda Power Automate / Copilot Studio
+# (singular vs plural, minusculas, "IT Support", etc.) en vez de caer siempre en Admins.
+ROLE_ALIASES = {
+    "admin": "Admins",
+    "admins": "Admins",
+    "administrator": "Admins",
+    "executive": "Executives",
+    "executives": "Executives",
+    "leadership": "Executives",
+    "designer": "Designers",
+    "designers": "Designers",
+    "instructional designer": "Designers",
+    "tech support": "Tech Support",
+    "techsupport": "Tech Support",
+    "tech_support": "Tech Support",
+    "it support": "Tech Support",
+    "support": "Tech Support",
+}
+
+
+def _resolve_role_key(user_group: str, prompts_dict: dict) -> str:
+    if not user_group:
+        return "Admins"
+    normalized = user_group.strip().lower()
+    for key in prompts_dict:
+        if key.lower() == normalized:
+            return key
+    return ROLE_ALIASES.get(normalized, "Admins")
+
+
 def generate_role_summary(raw_text: str, user_group: str) -> str:
     """Carga las instrucciones puras desde el archivo JSON sin hardcodear prompts en Python."""
     try:
         with open(ROLE_FILE, "r", encoding="utf-8") as f:
             prompts_dict = json.load(f)
 
-        # Seleccionar la configuración del grupo o usar Admins por defecto
-        role_config = prompts_dict.get(user_group, prompts_dict.get("Admins"))
+        role_key = _resolve_role_key(user_group, prompts_dict)
+        if role_key != user_group:
+            log_info(f"user_group '{user_group}' resolved to role '{role_key}'")
+        role_config = prompts_dict.get(role_key, prompts_dict.get("Admins"))
         instructions_json = json.dumps(role_config, indent=2)
 
     except Exception as e:
         log_error(f"Error loading role_prompts.json: {e}")
         instructions_json = "Extract and format all release notes present in the document."
 
+    log_info(f"generate_role_summary: user_group='{user_group}', raw_text length={len(raw_text)}")
+    log_info(f"raw_text preview: {raw_text[:300]!r}")
+
     full_prompt = (
         f"INSTRUCTIONS AND ROLE CONFIGURATION:\n"
         f"{instructions_json}\n\n"
+        f"IMPORTANT: Base your summary strictly on the RAW INPUT DOCUMENT below. "
+        f"If the document mentions any digital tool, product, or service update at all "
+        f"(even one not on the recognized_tools list), you MUST summarize it under its own "
+        f"heading using the name as it appears in the text - do not skip it just because it "
+        f"is unfamiliar. Only respond that there are no relevant updates if the RAW INPUT "
+        f"DOCUMENT section below is empty or contains no tool/product-related text whatsoever.\n\n"
         f"=== RAW INPUT DOCUMENT ===\n"
         f"{raw_text}"
     )
-    
-    return generate_summary(full_prompt)
+
+    result = generate_summary(full_prompt)
+    log_info(f"generate_role_summary: Gemini response length={len(result)}")
+    return result

@@ -226,7 +226,7 @@ def scrape_playposit():
             content = content[matches[0].start() : matches[1].start()]
         elif len(matches) == 1:
             content = content[matches[0].start() :]
-        return {"tool": "Playposit", "title": "Playposit Latest Release", "content": content.strip(), "url": url}
+        return {"tool": "PlayPosit", "title": "PlayPosit Latest Release", "content": content.strip(), "url": url}
     except Exception as e:
         log_error(f"Playposit scrape failed: {e}")
     return None
@@ -347,6 +347,25 @@ def scrape_zoom():
         log_error(f"Zoom scrape failed: {e}")
         return None
 
+SCRAPE_FAILURE_MARKERS = (
+    "ERR_HTTP2_PROTOCOL_ERROR",
+    "This site can't be reached",
+    "Content not found.",
+    "Could not extract full pages.",
+)
+
+
+def _is_valid_scrape(item: dict) -> bool:
+    """Filters out results that are really failed fetches (bot blocks, dead pages)
+    instead of actual release-note content, so they never reach the Word doc / Gemini."""
+    if item.get("is_table"):
+        return bool(item.get("data"))
+    content = item.get("content", "") or ""
+    if not content.strip():
+        return False
+    return not any(marker in content for marker in SCRAPE_FAILURE_MARKERS)
+
+
 def scrape_all():
     """Executes all scrapers and compiles the results."""
     results = []
@@ -356,13 +375,15 @@ def scrape_all():
         scrape_readspeaker, scrape_respondus, scrape_simplesyllabus,
         scrape_turnitin, scrape_qwickly, scrape_zoom
     ]
-    
+
     for scraper in scrapers:
         try:
             result = scraper()
-            if result:
+            if result and _is_valid_scrape(result):
                 results.append(result)
                 log_info(f"Successfully scraped {result['tool']}")
+            elif result:
+                log_warning(f"Discarded {result.get('tool', scraper.__name__)}: content looks like a failed fetch, not release notes.")
             else:
                 log_warning(f"No valid data returned for {scraper.__name__}")
         except Exception as e:
