@@ -61,16 +61,18 @@ async def format_release_notes(request: FormatRequest):
             return {
                 "status": "warning",
                 "user_group": request.user_group,
-                "formatted_content": "No readable text found in the uploaded document."
+                "executive_summary": "No readable text found in the uploaded document.",
+                "detailed_tool_updates": ""
             }
-        
-        # Generar el resumen en Markdown mediante Gemini
-        formatted_text = generate_role_summary(raw_text, request.user_group)
-        
+
+        # Generar el resumen en Markdown mediante Gemini, separado por sección
+        summary = generate_role_summary(raw_text, request.user_group)
+
         return {
             "status": "success",
             "user_group": request.user_group,
-            "formatted_content": formatted_text  # Devuelve el texto Markdown directo
+            "executive_summary": summary["executive_summary"],
+            "detailed_tool_updates": summary["detailed_tool_updates"]
         }
     except Exception as e:
         log_error(f"Error processing release notes: {e}")
