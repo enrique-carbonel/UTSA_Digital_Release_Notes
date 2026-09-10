@@ -2,6 +2,7 @@ import os
 import json
 from pathlib import Path
 from google import genai
+from google.genai import types
 from utils.logger import log_info, log_error
 
 # Rutas relativas a la carpeta helper_files
@@ -25,16 +26,18 @@ def _extract_text_from_response(response) -> str:
         return ""
 
 
-def generate_summary(prompt: str) -> str:
+def generate_summary(prompt: str, json_mode: bool = False) -> str:
     """Invoca la API de Gemini 2.5 Flash."""
     try:
         log_info("Generating AI response with Gemini 2.5 Flash...")
-        
+
+        config = types.GenerateContentConfig(response_mime_type="application/json") if json_mode else None
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=prompt
+            contents=prompt,
+            config=config,
         )
-        
+
         extracted_text = _extract_text_from_response(response)
         return extracted_text.strip() if extracted_text else "Summary could not be generated."
     except Exception as e:
@@ -72,8 +75,12 @@ def _resolve_role_key(user_group: str, prompts_dict: dict) -> str:
     return ROLE_ALIASES.get(normalized, "Admins")
 
 
-def generate_role_summary(raw_text: str, user_group: str) -> str:
-    """Carga las instrucciones puras desde el archivo JSON sin hardcodear prompts en Python."""
+def generate_role_summary(raw_text: str, user_group: str) -> dict:
+    """Carga las instrucciones puras desde el archivo JSON sin hardcodear prompts en Python.
+
+    Regresa un dict con "executive_summary" y "detailed_tool_updates" por separado,
+    ya que la plantilla de Word tiene un content control distinto para cada sección.
+    """
     try:
         with open(ROLE_FILE, "r", encoding="utf-8") as f:
             prompts_dict = json.load(f)
@@ -100,10 +107,25 @@ def generate_role_summary(raw_text: str, user_group: str) -> str:
         f"heading using the name as it appears in the text - do not skip it just because it "
         f"is unfamiliar. Only respond that there are no relevant updates if the RAW INPUT "
         f"DOCUMENT section below is empty or contains no tool/product-related text whatsoever.\n\n"
+        f"Respond with ONLY a JSON object with exactly two keys: \"executive_summary\" and "
+        f"\"detailed_tool_updates\". Each value is the Markdown body text for that section only "
+        f"(use ## for each tool name as a sub-heading inside detailed_tool_updates). Do NOT "
+        f"include a top-level '#' section title in either value - the Word template already "
+        f"has that heading. Do NOT ask the reader questions or add closing remarks; this is a "
+        f"formal document, not a chat reply.\n\n"
         f"=== RAW INPUT DOCUMENT ===\n"
         f"{raw_text}"
     )
 
-    result = generate_summary(full_prompt)
+    result = generate_summary(full_prompt, json_mode=True)
     log_info(f"generate_role_summary: Gemini response length={len(result)}")
-    return result
+
+    try:
+        data = json.loads(result)
+        return {
+            "executive_summary": str(data.get("executive_summary", "")).strip(),
+            "detailed_tool_updates": str(data.get("detailed_tool_updates", "")).strip(),
+        }
+    except Exception as e:
+        log_error(f"Gemini did not return valid JSON, returning raw text instead: {e}")
+        return {"executive_summary": result, "detailed_tool_updates": ""}

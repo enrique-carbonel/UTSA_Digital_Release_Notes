@@ -44,8 +44,7 @@
       "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
       "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
     ],
-    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
-    "closing": "After the formatted information, ask whether the user wants additional details or a full report."
+    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information."
   },
 
   "Executives": {
@@ -86,8 +85,7 @@
       "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
       "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
     ],
-    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
-    "closing": "After the formatted information, ask whether the user wants additional details or a full report."
+    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information."
   },
 
   "Designers": {
@@ -129,8 +127,7 @@
       "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
       "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
     ],
-    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
-    "closing": "After the formatted information, ask whether the user wants additional details or a full report."
+    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information."
   },
 
   "Tech Support": {
@@ -170,7 +167,6 @@
       "PlayPosit", "ReadSpeaker", "Respondus", "Simple Syllabus", "SoftChalk Cloud",
       "TidyUP Canvas Clean-Up Tool", "Turnitin", "Qwickly Course Tools", "Zoom"
     ],
-    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information.",
-    "closing": "After the formatted information, ask whether the user wants additional details or a full report."
+    "error_handling": "If content extraction fails for a source or tool, clearly indicate that the information could not be extracted. Do not fabricate missing information."
   }
 }
