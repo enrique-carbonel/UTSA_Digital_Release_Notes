@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from google import genai
 from google.genai import types
+from pydantic import BaseModel
 from utils.logger import log_info, log_error
 
 # Rutas relativas a la carpeta helper_files
@@ -12,6 +13,10 @@ SYSTEM_INSTRUCTION_FILE = HELPER_DIR / "gemini_system_instruction.txt"
 
 # Cliente oficial de Google GenAI
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+
+class RoleSummarySchema(BaseModel):
+    executive_summary: str
+    detailed_tool_updates: str
 
 
 def _extract_text_from_response(response) -> str:
@@ -26,12 +31,16 @@ def _extract_text_from_response(response) -> str:
         return ""
 
 
-def generate_summary(prompt: str, json_mode: bool = False) -> str:
+def generate_summary(prompt: str, json_mode: bool = False, response_schema=None) -> str:
     """Invoca la API de Gemini 2.5 Flash."""
     try:
         log_info("Generating AI response with Gemini 2.5 Flash...")
 
-        config = types.GenerateContentConfig(response_mime_type="application/json") if json_mode else None
+        config = (
+            types.GenerateContentConfig(response_mime_type="application/json", response_schema=response_schema)
+            if json_mode
+            else None
+        )
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
@@ -117,7 +126,7 @@ def generate_role_summary(raw_text: str, user_group: str) -> dict:
         f"{raw_text}"
     )
 
-    result = generate_summary(full_prompt, json_mode=True)
+    result = generate_summary(full_prompt, json_mode=True, response_schema=RoleSummarySchema)
     log_info(f"generate_role_summary: Gemini response length={len(result)}")
 
     try:
